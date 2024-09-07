@@ -1,0 +1,23 @@
+# 顶级 EditorConfig 文件
+root = true
+
+# 所有文件的通用配置
+[*]
+charset = utf-8
+indent_style = tab
+tab_width = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Markdown 文件的特殊配置
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+
+# C++ 文件的特殊配置
+[*.cc]
+tab_width = 4
+
+[*.h]
+tab_width = 4
