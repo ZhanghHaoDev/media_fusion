@@ -4,18 +4,9 @@
 #include <QApplication>
 #include <QStandardItemModel>
 
-#include "spdlog/spdlog.h"
-#include "spdlog/fmt/ostr.h"
+#include "glog/logging.h"
 
 #include "file_management.h"
-
-template <>
-struct fmt::formatter<QString> : fmt::formatter<std::string> {
-    template <typename FormatContext>
-    auto format(const QString& qstr, FormatContext& ctx) {
-        return fmt::formatter<std::string>::format(qstr.toStdString(), ctx);
-    }
-};
 
 main_window::main_window() {
     setWindowTitle("音视频分析处理工具");
@@ -80,7 +71,6 @@ void main_window::exit_app() {
     QApplication::quit();
 }
 
-
 void main_window::about_menu() {
     QMenu *aboutMenu = menuBar->addMenu("关于");
     QAction *aboutAction = new QAction("软件信息", this);
@@ -112,9 +102,11 @@ void main_window::open_file() {
 
 void main_window::init_left_tree(const QString &fileName) {
     if (fileName.isEmpty()) {
+        LOG(ERROR) << "文件名为空" << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         return;
     }
     QStandardItem *item = new QStandardItem(fileName);
+    item->setData(fileName, Qt::UserRole); 
     fileModel->appendRow(item);
     this->all_file_names.append(fileName);
 }
@@ -167,13 +159,9 @@ void main_window::close_file_tree() {
 void main_window::init_right_info(const QString &fileName){
 
 }
+
 void main_window::attribute_file(const QString &fileName) {
-    std::cout << "文件属性: " << fileName.toStdString() << std::endl;
-
-    // 清空之前的内容
     fileInfo->clear();
-
-    // 显示文件名
     fileInfo->append(QString("文件名: %1").arg(fileName));
 
     // 获取 AAC 文件信息

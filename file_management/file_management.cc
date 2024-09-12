@@ -1,6 +1,6 @@
 #include "file_management.h"
 
-#include <spdlog/spdlog.h>
+#include "glog/logging.h"
 
 extern "C" {
     #include <libavformat/avformat.h>
@@ -10,27 +10,29 @@ extern "C" {
     #include <libswresample/swresample.h>
 }
 
-file_management::file_management(){
+#include <glog/logging.h>
+#include <filesystem>
 
+file_management::file_management() {
 }
-file_management::~file_management(){
 
+file_management::~file_management(){
 }
 
 int file_management::file_type(const std::string& file_path){
      if (file_path.empty()) {
-        spdlog::error("输入的文件路径为空，文件名：{}，行号：{}", __FILE__, __LINE__);
+        LOG(ERROR) << "输入文件为空 : " << __FILE__ << ", line: " << __LINE__;
         return -1;
     }
 
     AVFormatContext* fmt_ctx = avformat_alloc_context();
     if (!fmt_ctx) {
-        spdlog::error("输入的文件路径为空，文件名：{}，行号：{}", __FILE__, __LINE__);
+        LOG(ERROR) << "输入的文件路径为空 : " << __FILE__ << ", line: " << __LINE__;
         return FILE_TYPE_UNKNOWN;
     }
 
     if (avformat_open_input(&fmt_ctx, file_path.c_str(), nullptr, nullptr) != 0) {
-        spdlog::error("Could not open file: {}，文件名称：{}，行号：{}", file_path, __FILE__, __LINE__);
+        LOG(ERROR) << "无法打开文件: " << file_path << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_free_context(fmt_ctx);
         return FILE_TYPE_UNKNOWN;
     }

@@ -1,6 +1,7 @@
 #include "aac_file.h"
 
-#include "spdlog/spdlog.h"
+#include "glog/logging.h"
+
 #include <SDL2/SDL.h>
 
 extern "C" {
@@ -13,7 +14,7 @@ extern "C" {
 
 aac_file::aac_file(const std::string& file_path){
     if (file_path.empty()){
-        spdlog::error("file path is empty, file: {}, line: {}", __FILE__, __LINE__);
+        LOG(ERROR) << "无法打开文件，文件为空: " << __FILE__ << ", line: " << __LINE__;
         return;
     }
     
@@ -33,12 +34,12 @@ bool aac_file::is_aac_file(const std::string& file_path){
 
     AVFormatContext* format_context = nullptr;
     if (avformat_open_input(&format_context, path_to_use.c_str(), nullptr, nullptr) != 0) {
-        spdlog::error("无法打开文件: {}，文件名：{}，行号：{}", path_to_use, __FILE__, __LINE__);
+        LOG(ERROR) << "无法打开文件: " << path_to_use << ", file: " << __FILE__ << ", line: " << __LINE__;
         return false;
     }
 
     if (avformat_find_stream_info(format_context, nullptr) < 0) {
-        spdlog::error("无法找到流信息: {}，文件名：{}，行号：{}", path_to_use, __FILE__, __LINE__);
+        LOG(ERROR) << "无法找到流信息: " << path_to_use << ", file: " << __FILE__ << ", line: " << __LINE__;
         avformat_close_input(&format_context);
         return false;
     }
@@ -62,12 +63,12 @@ aac_file::aac_file_info aac_file::get_aac_file_info(const std::string& file_path
 
     AVFormatContext* format_context = nullptr;
     if (avformat_open_input(&format_context, path_to_use.c_str(), nullptr, nullptr) != 0) {
-        spdlog::error("无法打开文件: {}，文件名：{}，行号：{}", path_to_use, __FILE__, __LINE__);
+        LOG(ERROR) << "无法打开文件: " << path_to_use << ", file: " << __FILE__ << ", line: " << __LINE__;
         throw std::runtime_error("无法打开文件");
     }
 
     if (avformat_find_stream_info(format_context, nullptr) < 0) {
-        spdlog::error("无法找到流信息: {}，文件名：{}，行号：{}", path_to_use, __FILE__, __LINE__);
+        LOG(ERROR) << "无法找到流信息: " << path_to_use << ", file: " << __FILE__ << ", line: " << __LINE__;
         avformat_close_input(&format_context);
         throw std::runtime_error("无法找到流信息");
     }
@@ -96,18 +97,18 @@ aac_file::aac_file_info aac_file::get_aac_file_info(const std::string& file_path
 
 void aac_file::extract_audio(const std::string& input_video, const std::string& output_aac) {
     if (input_video.empty() || output_aac.empty()) {
-        spdlog::error("输入文件路径或输出文件路径为空,文件名：{}，行号：{}", __FILE__, __LINE__);
+        LOG(ERROR) << "输入文件路径或输出文件路径为空,文件名：" << __FILE__ << ", 行号：" << __LINE__;
         return;
     }
 
     AVFormatContext* format_context = nullptr;
     if (avformat_open_input(&format_context, input_video.c_str(), nullptr, nullptr) != 0) {
-        spdlog::error("无法打开文件: {}，文件名：{},行号：{}", input_video, __FILE__, __LINE__);
+        LOG(ERROR) << "无法打开文件: " << input_video << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         return;
     }
 
     if (avformat_find_stream_info(format_context, nullptr) < 0) {
-        spdlog::error("无法找到流信息: {}, 文件名：{},行号：{}", input_video, __FILE__, __LINE__);
+        LOG(ERROR) << "无法找到流信息: " << input_video << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_close_input(&format_context);
         return;
     }
@@ -121,7 +122,7 @@ void aac_file::extract_audio(const std::string& input_video, const std::string& 
     }
 
     if (!audio_stream) {
-        spdlog::error("没有找到音频流: {},文件名：{},行号：{}", input_video, __FILE__, __LINE__);
+        LOG(ERROR) << "没有找到音频流: " << input_video << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_close_input(&format_context);
         return;
     }
@@ -129,21 +130,21 @@ void aac_file::extract_audio(const std::string& input_video, const std::string& 
     AVFormatContext* output_format_context = nullptr;
     avformat_alloc_output_context2(&output_format_context, nullptr, nullptr, output_aac.c_str());
     if (!output_format_context) {
-        spdlog::error("无法创建输出上下文: {},文件名：{},行号：{}", output_aac, __FILE__, __LINE__);
+        LOG(ERROR) << "无法创建输出上下文: " << output_aac << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_close_input(&format_context);
         return;
     }
 
     AVStream* out_stream = avformat_new_stream(output_format_context, nullptr);
     if (!out_stream) {
-        spdlog::error("无法创建输出流: {},文件名：{},行号：{}", output_aac, __FILE__, __LINE__);
+        LOG(ERROR) << "无法创建输出流: " << output_aac << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_close_input(&format_context);
         avformat_free_context(output_format_context);
         return;
     }
 
     if (avcodec_parameters_copy(out_stream->codecpar, audio_stream->codecpar) < 0) {
-        spdlog::error("无法复制编码参数: {},,文件名：{},行号：{}", output_aac, __FILE__, __LINE__);
+        LOG(ERROR) << "无法复制编码参数: " << output_aac << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_close_input(&format_context);
         avformat_free_context(output_format_context);
         return;
@@ -153,7 +154,7 @@ void aac_file::extract_audio(const std::string& input_video, const std::string& 
 
     if (!(output_format_context->oformat->flags & AVFMT_NOFILE)) {
         if (avio_open(&output_format_context->pb, output_aac.c_str(), AVIO_FLAG_WRITE) < 0) {
-            spdlog::error("无法打开输出文件: {},文件名：{},行号：{}", output_aac, __FILE__, __LINE__);
+            LOG(ERROR) << "无法打开输出文件: " << output_aac << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
             avformat_close_input(&format_context);
             avformat_free_context(output_format_context);
             return;
@@ -161,7 +162,7 @@ void aac_file::extract_audio(const std::string& input_video, const std::string& 
     }
 
     if (avformat_write_header(output_format_context, nullptr) < 0) {
-        spdlog::error("无法写入文件头: {},文件名：{},行号：{}", output_aac, __FILE__, __LINE__);
+        LOG(ERROR) << "无法写入文件头: " << output_aac << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_close_input(&format_context);
         avformat_free_context(output_format_context);
         return;
@@ -184,7 +185,7 @@ void aac_file::extract_audio(const std::string& input_video, const std::string& 
     }
     avformat_free_context(output_format_context);
 
-    spdlog::info("音频提取完成: {}", output_aac);
+    LOG(INFO) << "音频提取完成: " << output_aac;
 }
 
 void aac_file::play_aac_file(const std::string& file_path){
@@ -192,12 +193,12 @@ void aac_file::play_aac_file(const std::string& file_path){
 
     AVFormatContext* format_context = nullptr;
     if (avformat_open_input(&format_context, path_to_use.c_str(), nullptr, nullptr) != 0) {
-        spdlog::error("无法打开文件: {},文件名：{},行号：{}", path_to_use, __FILE__, __LINE__);
+        LOG(ERROR) << "无法打开文件: " << path_to_use << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         return;
     }
 
     if (avformat_find_stream_info(format_context, nullptr) < 0) {
-        spdlog::error("无法找到流信息: {},文件名：{},行号：{}", path_to_use, __FILE__, __LINE__);
+        LOG(ERROR) << "无法找到流信息: " << path_to_use << ", 文件名：" << __FILE__ << ", 行号：" << __LINE__;
         avformat_close_input(&format_context);
         return;
     }
@@ -206,7 +207,7 @@ void aac_file::play_aac_file(const std::string& file_path){
 
 void aac_file::input_aac_file(const std::string& file_path){
     if (file_path.empty()) {
-        spdlog::error("file path is empty, file: {}, line: {}", __FILE__, __LINE__);
+        LOG(ERROR) << "file path is empty, file: " << __FILE__ << ", line: " << __LINE__;
         return;
     }
 

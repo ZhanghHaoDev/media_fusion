@@ -14,7 +14,7 @@ find_package(Qt6 COMPONENTS Widgets REQUIRED)
 find_package(spdlog REQUIRED)
 
 target_link_libraries(qt_interface PUBLIC 
-    spdlog::spdlog
+    glog::glog
     Qt6::Widgets
     file_management
 )
