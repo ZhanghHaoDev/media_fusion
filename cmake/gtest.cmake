@@ -7,3 +7,4 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(gtest)
+include_directories(${gtest_SOURCE_DIR}/src ${gtest_BINARY_DIR})

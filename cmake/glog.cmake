@@ -7,3 +7,4 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(glog)
+include_directories(${glog_SOURCE_DIR}/src ${glog_BINARY_DIR})

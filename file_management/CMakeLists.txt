@@ -1,7 +1,6 @@
 add_library(file_management STATIC
     wav_file.cc
     aac_file.cc
-    file_management.cc
 )
 
 target_link_libraries(file_management PUBLIC 

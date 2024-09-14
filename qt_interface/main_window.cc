@@ -3,10 +3,9 @@
 #include <QFileDialog>
 #include <QApplication>
 #include <QStandardItemModel>
+#include <vector>
 
 #include "glog/logging.h"
-
-#include "file_management.h"
 
 main_window::main_window() {
     setWindowTitle("音视频分析处理工具");
@@ -36,7 +35,9 @@ main_window::main_window() {
     fileTree->setContextMenuPolicy(Qt::CustomContextMenu);
 
     this->init_menu();
-    this->init_left_tree("");
+    if (all_file_names.size() != 0) {
+        this->init_left_tree("");
+    }
 }
 
 main_window::~main_window() {
@@ -84,18 +85,18 @@ void main_window::about_menu() {
 void main_window::open_file() {
     QString fileName = QFileDialog::getOpenFileName(this, "选择文件", "", "所有文件 (*.*)");
     if (!fileName.isEmpty()) {
-        file_management file;
-        int fileType = file.file_type(fileName.toStdString());
-        if (fileType == FILE_TYPE_UNKNOWN) {
-            QMessageBox::information(this, "文件类型", "选择的文件类型未知");
-        } else if(fileType == FILE_TYPE_AAC) {
-            aac.input_aac_file(fileName.toStdString());
-            if (!aac.is_aac_file()) {
-                QMessageBox::information(this, "文件类型", "选择的文件不是AAC文件");
-                return;
-            }
-            aac_file::aac_file_info aac_info = aac.get_aac_file_info();
-        }
+        // file_management file;
+        // int fileType = file.file_type(fileName.toStdString());
+        // if (fileType == FILE_TYPE_UNKNOWN) {
+        //     QMessageBox::information(this, "文件类型", "选择的文件类型未知");
+        // } else if(fileType == FILE_TYPE_AAC) {
+            // aac.input_aac_file(fileName.toStdString());
+            // if (!aac.is_file()) {
+            //     QMessageBox::information(this, "文件类型", "选择的文件不是AAC文件");
+            //     return;
+            // }
+            // aac_file::aac_file_info aac_info = aac.get_aac_file_info();
+        //}
         init_left_tree(fileName);
     }
 }
@@ -164,17 +165,19 @@ void main_window::attribute_file(const QString &fileName) {
     fileInfo->clear();
     fileInfo->append(QString("文件名: %1").arg(fileName));
 
-    // 获取 AAC 文件信息
-    aac_file aac(fileName.toStdString());
-    aac_file::aac_file_info info = aac.get_aac_file_info();
+    // // 获取 AAC 文件信息
+    // aac_file aac(fileName.toStdString());
+    // aac_file::aac_file_info info = aac.get_aac_file_info();
+    // std::vector<int16_t> sample_values = aac.get_file_sample_values();
+    // LOG(INFO) << "文件路径: " << sample_values.size();
 
-    // 显示文件信息
-    fileInfo->append(QString("文件路径: %1").arg(QString::fromStdString(info.file_path)));
-    fileInfo->append(QString("是否是AAC文件: %1").arg(info.is_aac ? "是" : "否"));
-    fileInfo->append(QString("采样率: %1").arg(info.sample_rate));
-    fileInfo->append(QString("声道数: %1").arg(info.channels));
-    fileInfo->append(QString("比特率: %1").arg(info.bit_rate));
-    fileInfo->append(QString("封装格式: %1").arg(info.format == 0 ? "ADTS" : "ADIF"));
-    fileInfo->append(QString("帧长度: %1").arg(info.frame_length));
-    fileInfo->append(QString("音频时长: %1秒").arg(info.duration));
+    // // 显示文件信息
+    // fileInfo->append(QString("文件路径: %1").arg(QString::fromStdString(info.file_path)));
+    // fileInfo->append(QString("是否是AAC文件: %1").arg(info.is_aac ? "是" : "否"));
+    // fileInfo->append(QString("采样率: %1").arg(info.sample_rate));
+    // fileInfo->append(QString("声道数: %1").arg(info.channels));
+    // fileInfo->append(QString("比特率: %1").arg(info.bit_rate));
+    // fileInfo->append(QString("封装格式: %1").arg(info.format == 0 ? "ADTS" : "ADIF"));
+    // fileInfo->append(QString("帧长度: %1").arg(info.frame_length));
+    // fileInfo->append(QString("音频时长: %1秒").arg(info.duration));
 }

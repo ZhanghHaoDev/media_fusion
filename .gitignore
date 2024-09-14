@@ -1,4 +1,5 @@
 .DS_Store
 .cache
-/build
-/fc_base
+build/
+fc_base/
+env/

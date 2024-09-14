@@ -7,3 +7,4 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(gflags)
+include_directories(${gflags_SOURCE_DIR}/src ${gflags_BINARY_DIR})
