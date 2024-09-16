@@ -1,11 +1,12 @@
 ﻿#include <QApplication>
-#include "main_window.h"
+#include "glog/logging.h"
 
 int main(int argc, char *argv[]) {
-    QApplication app(argc, argv);
+    google::InitGoogleLogging(argv[0]);
+    google::ParseCommandLineFlags(&argc, &argv, true);
+    FLAGS_minloglevel = 0; 
+    FLAGS_logtostderr = 1; 
 
-    main_window mainWindow;
-    mainWindow.show();
-
-    return app.exec();
+    google::ShutdownGoogleLogging();
+    return 0;
 }

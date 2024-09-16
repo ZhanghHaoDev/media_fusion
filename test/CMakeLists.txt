@@ -1,16 +1,17 @@
 include_directories(
-    ${CMAKE_SOURCE_DIR}/file_management
+    ${CMAKE_SOURCE_DIR}/file_info
 )
 
 enable_testing()
 
 add_executable(media_fusion_test
-    "./file_management_test/aac_file_test.cc"
+    "main_test.cc"
+    "./file_info_test.cc"
 )
 
-target_link_libraries(media_fusion_test PUBLIC
+target_link_libraries(media_fusion_test PUBLIC  
     gtest_main
-    file_management
+    file_info
 )
 
 include(GoogleTest)

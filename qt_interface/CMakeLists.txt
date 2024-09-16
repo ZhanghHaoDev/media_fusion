@@ -3,18 +3,16 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/file_management
+    ${CMAKE_SOURCE_DIR}/file_info
 )
 
 add_library(qt_interface STATIC
-    main_window.cc
 )
 
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
-find_package(spdlog REQUIRED)
 
 target_link_libraries(qt_interface PUBLIC 
     glog::glog
     Qt6::Widgets
-    file_management
+    file_info
 )
