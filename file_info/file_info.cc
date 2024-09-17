@@ -22,18 +22,18 @@ file_info::~file_info() = default;
 
 int file_info::file_open(const std::string &file_name) {
     if (file_name.empty() || !std::ifstream(file_name).is_open()) {
-        LOG(ERROR) << "无法打开文件: " << file_name << ", line: " << __LINE__;
+        LOG(ERROR) << "无法打开文件: " << file_name;
         return -1;
     }
 
     AVFormatContext* formatContext = avformat_alloc_context();
     if (avformat_open_input(&formatContext, file_name.c_str(), nullptr, nullptr) != 0) {
-        LOG(ERROR) << "无法打开文件: " << file_name << ", line: " << __LINE__;
+        LOG(ERROR) << "无法打开文件: " << file_name;
         return -1;
     }
 
     if (avformat_find_stream_info(formatContext, nullptr) < 0) {
-        LOG(ERROR) << "无法获取流信息: " << file_name << ", line: " << __LINE__;
+        LOG(ERROR) << "无法获取流信息: " << file_name;
         avformat_close_input(&formatContext);
         return -1;
     }
@@ -50,7 +50,7 @@ int file_info::file_open(const std::string &file_name) {
     avformat_close_input(&formatContext);
 
     if (!has_audio_stream && !has_video_stream) {
-        LOG(ERROR) << "文件中不存在音频流和视频流: " << file_name << ", line: " << __LINE__;
+        LOG(ERROR) << "文件中不存在音频流和视频流: " << file_name;
         return -1;
     }
 
@@ -60,7 +60,7 @@ int file_info::file_open(const std::string &file_name) {
 
 file_info::audio_file_info file_info::get_audio_file_info(){
     if (!this->has_audio_stream) {
-        LOG(ERROR) << "文件中不存在音频流: " << this->file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "文件中不存在音频流: " << this->file_path;
         throw std::runtime_error("文件中不存在音频流");
     }
 
@@ -69,12 +69,12 @@ file_info::audio_file_info file_info::get_audio_file_info(){
 
     AVFormatContext* format_context = nullptr;
     if (avformat_open_input(&format_context, this->file_path.c_str(), nullptr, nullptr) != 0) {
-        LOG(ERROR) << "无法打开文件: " << this->file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "无法打开文件: " << this->file_path;
         throw std::runtime_error("无法打开文件");
     }
 
     if (avformat_find_stream_info(format_context, nullptr) < 0) {
-        LOG(ERROR) << "无法找到流信息: " << this->file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "无法找到流信息: " << this->file_path;
         avformat_close_input(&format_context);
         throw std::runtime_error("无法找到流信息");
     }
@@ -89,27 +89,27 @@ file_info::audio_file_info file_info::get_audio_file_info(){
         if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             codec = avcodec_find_decoder(stream->codecpar->codec_id);
             if (!codec) {
-                LOG(ERROR) << "无法找到解码器: " << info.file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法找到解码器: " << info.file_path;
                 avformat_close_input(&format_context);
                 throw std::runtime_error("无法找到解码器");
             }
 
             codec_context = avcodec_alloc_context3(codec);
             if (!codec_context) {
-                LOG(ERROR) << "无法分配解码器上下文: " << info.file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法分配解码器上下文: " << info.file_path;
                 avformat_close_input(&format_context);
                 throw std::runtime_error("无法分配解码器上下文");
             }
 
             if (avcodec_parameters_to_context(codec_context, stream->codecpar) < 0) {
-                LOG(ERROR) << "无法初始化解码器上下文: " << info.file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法初始化解码器上下文: " << info.file_path;
                 avcodec_free_context(&codec_context);
                 avformat_close_input(&format_context);
                 throw std::runtime_error("无法初始化解码器上下文");
             }
 
             if (avcodec_open2(codec_context, codec, nullptr) < 0) {
-                LOG(ERROR) << "无法打开解码器: " << info.file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法打开解码器: " << info.file_path;
                 avcodec_free_context(&codec_context);
                 avformat_close_input(&format_context);
                 throw std::runtime_error("无法打开解码器");
@@ -139,12 +139,12 @@ std::vector<T> file_info::get_sample_values() {
 
     AVFormatContext* formatContext = nullptr;
     if (avformat_open_input(&formatContext, file_path.c_str(), nullptr, nullptr) != 0) {
-        LOG(ERROR) << "无法打开文件: " << file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "无法打开文件: " << file_path;
         return samples;
     }
 
     if (avformat_find_stream_info(formatContext, nullptr) < 0) {
-        LOG(ERROR) << "无法获取流信息: " << file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "无法获取流信息: " << file_path;
         avformat_close_input(&formatContext);
         return samples;
     }
@@ -158,24 +158,24 @@ std::vector<T> file_info::get_sample_values() {
             audioStreamIndex = i;
             codec = avcodec_find_decoder(formatContext->streams[i]->codecpar->codec_id);
             if (!codec) {
-                LOG(ERROR) << "无法找到解码器: " << file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法找到解码器: " << file_path;
                 avformat_close_input(&formatContext);
                 return samples;
             }
             codecContext = avcodec_alloc_context3(codec);
             if (!codecContext) {
-                LOG(ERROR) << "无法分配解码器上下文: " << file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法分配解码器上下文: " << file_path;
                 avformat_close_input(&formatContext);
                 return samples;
             }
             if (avcodec_parameters_to_context(codecContext, formatContext->streams[i]->codecpar) < 0) {
-                LOG(ERROR) << "无法复制解码器参数: " << file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法复制解码器参数: " << file_path;
                 avcodec_free_context(&codecContext);
                 avformat_close_input(&formatContext);
                 return samples;
             }
             if (avcodec_open2(codecContext, codec, nullptr) < 0) {
-                LOG(ERROR) << "无法打开解码器: " << file_path << ", line: " << __LINE__;
+                LOG(ERROR) << "无法打开解码器: " << file_path;
                 avcodec_free_context(&codecContext);
                 avformat_close_input(&formatContext);
                 return samples;
@@ -185,7 +185,7 @@ std::vector<T> file_info::get_sample_values() {
     }
 
     if (audioStreamIndex == -1) {
-        LOG(ERROR) << "找不到音频流: " << file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "找不到音频流: " << file_path;
         avformat_close_input(&formatContext);
         return samples;
     }
@@ -198,13 +198,13 @@ std::vector<T> file_info::get_sample_values() {
         if (packet.stream_index == audioStreamIndex) {
             int ret = avcodec_send_packet(codecContext, &packet);
             if (ret < 0) {
-                LOG(ERROR) << "Error sending packet for decoding: " << ret << ", line: " << __LINE__;
+                LOG(ERROR) << "Error sending packet for decoding: " << ret;
                 break;
             }
 
             AVFrame* frame = av_frame_alloc();
             if (!frame) {
-                LOG(ERROR) << "无法分配帧" << ", line: " << __LINE__;
+                LOG(ERROR) << "无法分配帧";
                 break;
             }
 
@@ -213,7 +213,7 @@ std::vector<T> file_info::get_sample_values() {
                 av_frame_free(&frame);
                 continue;
             } else if (ret < 0) {
-                LOG(ERROR) << "Error during decoding: " << ret << ", line: " << __LINE__;
+                LOG(ERROR) << "Error during decoding: " << ret;
                 av_frame_free(&frame);
                 break;
             }
@@ -222,7 +222,7 @@ std::vector<T> file_info::get_sample_values() {
             if (frame->data[0]) {
                 int data_size = av_get_bytes_per_sample(codecContext->sample_fmt);
                 if (data_size < 0) {
-                    LOG(ERROR) << "Failed to calculate data size" << ", line: " << __LINE__;
+                    LOG(ERROR) << "Failed to calculate data size";
                     av_frame_free(&frame);
                     break;
                 }
@@ -254,7 +254,7 @@ template std::vector<double> file_info::get_sample_values<double>();
 
 file_info::video_file_info file_info::get_video_file_info(){
     if (!this->has_video_stream) {
-        LOG(ERROR) << "文件中不存在视频流: " << this->file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "文件中不存在视频流: " << this->file_path;
         throw std::runtime_error("文件中不存在视频流");
     }
 
@@ -263,12 +263,12 @@ file_info::video_file_info file_info::get_video_file_info(){
 
     AVFormatContext* formatContext = nullptr;
     if (avformat_open_input(&formatContext, file_path.c_str(), nullptr, nullptr) != 0) {
-        LOG(ERROR) << "无法打开文件: " << file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "无法打开文件: " << file_path;
         throw std::runtime_error("无法打开文件");
     }
 
     if (avformat_find_stream_info(formatContext, nullptr) < 0) {
-        LOG(ERROR) << "无法获取流信息: " << file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "无法获取流信息: " << file_path;
         avformat_close_input(&formatContext);
         throw std::runtime_error("无法获取流信息");
     }
@@ -285,7 +285,7 @@ file_info::video_file_info file_info::get_video_file_info(){
     }
 
     if (videoStreamIndex == -1) {
-        LOG(ERROR) << "找不到视频流: " << file_path << ", line: " << __LINE__;
+        LOG(ERROR) << "找不到视频流: " << file_path;
         avformat_close_input(&formatContext);
         throw std::runtime_error("找不到视频流");
     }
